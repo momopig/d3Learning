@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<style>
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+</style>
+
+<body>
+      <div class='chart'>
+      </div>
+<!-- load the d3.js library -->	
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script >
+ var width = window.innerWidth - 240,
+        height = window.innerHeight - 56;
+    var zoom = d3.zoom().scaleExtent([0.2, 10]).on("zoom", function () {
+        g.attr("transform", d3.event.transform);
+
+      });
+        d3.select(".chart").html('');
+    var svg = d3.select(".chart").append('svg')
+              .attr('width', width)
+              .attr('height', height)
+              .call(zoom);
+    var  g = svg.append("g")
+        .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")");
+
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1));
+
+    // var tree = d3.tree()
+    //     .size([2 * Math.PI, 500])
+    //     .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
+    var treeLayout = d3.tree()
+      .size([2 * Math.PI, 300]);
+
+    function expand(d){   
+      var children = (d.children)?d.children:d._children;
+      if (d._children) {        
+        d.children = d._children;
+        d._children = null;       
+      }
+      if(children)
+      children.forEach(expand);
+    }
+
+    function collapse(d) {
+      if (d.children) {
+      d._children = d.children;
+      d._children.forEach(collapse);
+      d.children = null;
+      }
+    }
+    function diagonal(s, d) {
+
+        path = `M ${s.y} ${s.x}
+                C ${(s.y + d.y) / 2} ${s.x},
+                ${(s.y + d.y) / 2} ${d.x},
+                ${d.y} ${d.x}`
+
+        return path
+    }
+    // Toggle children on click.
+    function click(d) {
+      console.log(d)
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      update(d)
+    }
+
+    function update(source) {
+  // Assigns the x and y position for the nodes
+      treeData = treeLayout(root);
+
+  // Compute the new tree layout.
+    var nodes = treeData.descendants(),
+      links = treeData.descendants().slice(1);
+      var node = g.selectAll(".node").data(nodes);
+      var nodeEnter = node.enter().append("g")
+        .on('click', click)
+        .attr("class", function (d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
+              .attr("transform", function(d) {
+          
+          // 不是控制显示隐藏的模块
+        return "translate(" + source.y0 + "," + source.x0 + ")";
+    })
+        .attr("transform", function (d) { return "translate(" + radialPoint(d) + ")"; });
+
+      nodeEnter.append("circle")
+        .attr("r", 6);
+
+      nodeEnter.append("text")
+        .attr("dy", "0.31em")
+        .attr("x", function (d) { return d.x < Math.PI === !d.children ? 6 : -6; })
+        .attr("text-anchor", function (d) { return d.x < Math.PI === !d.children ? "start" : "end"; })
+        .attr("transform", function (d) { return "rotate(" + (d.x < Math.PI ? d.x - Math.PI / 2 : d.x + Math.PI / 2) * 180 / Math.PI + ")"; })
+        .text(function (d) { return d.data.properties.name; });
+        
+ 
+  // UPDATE
+  var nodeUpdate = nodeEnter.merge(node);
+
+  // Transition to the proper position for the node
+  nodeUpdate.transition()
+    .duration(duration)
+    // .attr("transform", function(d) { 
+        
+    //     return "translate(" + d.y + "," + d.x + ")";
+    //  });
+
+  // Update the node attributes and style
+  nodeUpdate.select('circle.node')
+    .attr('r', 10)
+    .style("fill", function(d) {
+        return d._children ? "lightsteelblue" : "#fff";
+    })
+    .attr('cursor', 'pointer');
+          // Remove any exiting nodes
+        var nodeExit = node.exit().transition()
+            .duration(duration)
+            .attr("transform", function(d) {
+                return "translate(" + source.y + "," + source.x + ")";
+            })
+            .remove();
+        // On exit reduce the node circles size to 0
+        nodeExit.select('circle').attr('r', 1e-6);
+
+        // On exit reduce the opacity of text labels
+        nodeExit.select('text').style('fill-opacity', 1e-6);
+
+      
+      var link = g.selectAll(".link").data(treeData.links())
+      var linkEnter =  link.enter().append("g");
+      linkEnter.append("path")
+        .attr("class", "link")
+    //     .attr('d', function(d){
+    //     var o = {x: source.x0, y: source.y0}
+    //     return diagonal(o, o)
+    //   })
+        .attr("d", d3.linkRadial()
+          .angle(function (d) { return d.x; })
+          .radius(function (d) { return d.y; }));
+
+      linkEnter.append("text")
+        .attr("font-family", "Arial, Helvetica, sans-serif")
+        .attr("fill", "Red")
+        .style("font", "normal 12px Arial")
+        .attr("transform", function(d) {
+          return "translate(" +
+            ((d.source.newX + d.target.newX)/2) + "," + 
+                ((d.source.newY + d.target.newY)/2) + ")";
+        })
+        .attr("dy", ".35em")
+        .attr("text-anchor", "middle")
+        .text(function(d) {
+          console.log(d);
+          if (d.target.data.path) {
+            return d.target.data.path.label;
+          }
+        });
+            var linkUpdate = linkEnter.merge(link);
+
+    // Transition back to the parent element position
+    linkUpdate.transition()
+        .duration(duration)
+        // .attr('d', function(d){ return diagonal(d, d.parent) });
+
+    // Remove any exiting links
+    var linkExit = link.exit().transition()
+        .duration(duration)
+        // .attr('d', function(d) {
+        //     var o = {x: source.x, y: source.y}
+        //     return diagonal(o, o)
+        // })
+        .remove();
+        nodes.forEach(function(d){
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
+    } // update end
+
+    
+
+    function radialPoint(d) {
+      let x = d.x;
+      let y = d.y;
+      let newX = (y = +y) * Math.cos(x -= Math.PI / 2);
+      let newY = y * Math.sin(x)
+      d.newX = newX;
+      d.newY = newY;
+      return [newX, newY];
+    }
+    let treeData = {
+      "id": "1",
+      "properties": {
+         "name": 'entity-root'
+      },     
+      "children": [
+        {
+          id: '1-1',
+          properties: {
+            name: '投资',  // 组名
+            type: 'relation', // 表示为组节点
+            key: 'invest'
+          },
+          "children": [
+            {
+              "id": "1-1-1",
+              properties: {
+                name: 'entity-1-1-1',  // 组名
+                type: 'group', // 表示为组节点
+                key: 'InvolvedInAppeal'
+              },
+              path: {
+                id: 'xxx',
+                 label: '涉诉路径labelxxx'
+              }
+            }
+          ]
+        },
+        {
+          "id": "1-2",
+          properties: {
+            name: '涉诉',  // 组名
+            type: 'group', // 表示为组节点
+            key: 'InvolvedInAppeal'
+          },
+          "children": [
+            {
+              "id": "1-2-1",
+              properties: {
+                name: 'entity-1-2-1'  
+              },
+              path: {
+                id: 'xxx',
+                 label: '涉诉路径labelxxx'
+              }
+            }, {
+              "id": "1-2-2",
+              properties: {
+                name: 'entity-1-2-2'  
+              },
+              path: {
+                id: 'xxx',
+                 label: '涉诉路径labelxxx'
+              }
+            }
+          ]
+        }
+      ]
+    }
+    var root = d3.hierarchy(treeData, function (d) {
+        return d.children;
+    });
+    root.x0 = height / 2;
+    root.y0 = 0;
+    var  duration = 750;
+    update(root);
+  
+</script>
+</body>
