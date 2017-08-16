@@ -26,7 +26,7 @@
 <!-- load the d3.js library -->	
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script >
- var width = window.innerWidth - 240,
+    var width = window.innerWidth - 240,
         height = window.innerHeight - 56;
     var zoom = d3.zoom().scaleExtent([0.2, 10]).on("zoom", function () {
         g.attr("transform", d3.event.transform);
@@ -65,15 +65,6 @@
       d.children = null;
       }
     }
-    function diagonal(s, d) {
-
-        path = `M ${s.y} ${s.x}
-                C ${(s.y + d.y) / 2} ${s.x},
-                ${(s.y + d.y) / 2} ${d.x},
-                ${d.y} ${d.x}`
-
-        return path
-    }
     // Toggle children on click.
     function click(d) {
       console.log(d)
@@ -89,20 +80,19 @@
 
     function update(source) {
   // Assigns the x and y position for the nodes
-      treeData = treeLayout(root);
+      let treeData = treeLayout(root);
 
   // Compute the new tree layout.
     var nodes = treeData.descendants(),
       links = treeData.descendants().slice(1);
-      var node = g.selectAll(".node").data(nodes);
+      
+      var node = g.selectAll(".node").data(nodes, function(d) {return d.id || (d.id = ++i); });
       var nodeEnter = node.enter().append("g")
         .on('click', click)
-        .attr("class", function (d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-              .attr("transform", function(d) {
-          
-          // 不是控制显示隐藏的模块
-        return "translate(" + source.y0 + "," + source.x0 + ")";
-    })
+        .attr("class", function (d) { return "node"; })
+        // .attr("transform", function(d) {
+        //   return "translate(" + source.y0 + "," + source.x0 + ")";
+        // })
         .attr("transform", function (d) { return "translate(" + radialPoint(d) + ")"; });
 
       nodeEnter.append("circle")
@@ -116,16 +106,9 @@
         .text(function (d) { return d.data.properties.name; });
         
  
-  // UPDATE
+  // // UPDATE
   var nodeUpdate = nodeEnter.merge(node);
 
-  // Transition to the proper position for the node
-  nodeUpdate.transition()
-    .duration(duration)
-    // .attr("transform", function(d) { 
-        
-    //     return "translate(" + d.y + "," + d.x + ")";
-    //  });
 
   // Update the node attributes and style
   nodeUpdate.select('circle.node')
@@ -134,68 +117,53 @@
         return d._children ? "lightsteelblue" : "#fff";
     })
     .attr('cursor', 'pointer');
-          // Remove any exiting nodes
-        var nodeExit = node.exit().transition()
-            .duration(duration)
-            .attr("transform", function(d) {
-                return "translate(" + source.y + "," + source.x + ")";
-            })
-            .remove();
-        // On exit reduce the node circles size to 0
-        nodeExit.select('circle').attr('r', 1e-6);
+         
+    // Remove any exiting 
+  var nodeExit = node.exit().remove();
+  // On exit reduce the node circles size to 0
+  nodeExit.select('circle').attr('r', 1e-6);
 
-        // On exit reduce the opacity of text labels
-        nodeExit.select('text').style('fill-opacity', 1e-6);
+  // On exit reduce the opacity of text labels
+  nodeExit.select('text').style('fill-opacity', 1e-6);
 
       
-      var link = g.selectAll(".link").data(treeData.links())
+      var link = g.selectAll(".link").data(treeData.links(), function(d) {  
+      return d.id; })
       var linkEnter =  link.enter().append("g");
       linkEnter.append("path")
         .attr("class", "link")
-    //     .attr('d', function(d){
-    //     var o = {x: source.x0, y: source.y0}
-    //     return diagonal(o, o)
-    //   })
-        .attr("d", d3.linkRadial()
-          .angle(function (d) { return d.x; })
-          .radius(function (d) { return d.y; }));
+        .attr("d", 
+          d3.linkRadial()
+          .angle(function (d) {  return d.x; }).radius(function (d) { return d.y; })
+        ); 
 
       linkEnter.append("text")
         .attr("font-family", "Arial, Helvetica, sans-serif")
         .attr("fill", "Red")
         .style("font", "normal 12px Arial")
-        .attr("transform", function(d) {
-          return "translate(" +
-            ((d.source.newX + d.target.newX)/2) + "," + 
-                ((d.source.newY + d.target.newY)/2) + ")";
-        })
+        // .attr("transform", function(d) {
+        //   return "translate(" +
+        //     ((d.source.newX + d.target.newX)/2) + "," + 
+        //         ((d.source.newY + d.target.newY)/2) + ")";
+        // })
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
         .text(function(d) {
           console.log(d);
-          if (d.target.data.path) {
-            return d.target.data.path.label;
-          }
+          // if (d.target.data.path) {
+          //   return d.target.data.path.label;
+          // }
         });
-            var linkUpdate = linkEnter.merge(link);
+        var linkUpdate = linkEnter.merge(link);
 
     // Transition back to the parent element position
-    linkUpdate.transition()
-        .duration(duration)
-        // .attr('d', function(d){ return diagonal(d, d.parent) });
+    linkUpdate.attr('d', d3.linkRadial().angle(function (d) {  return d.x; }).radius(function (d) { return d.y; }));
 
     // Remove any exiting links
-    var linkExit = link.exit().transition()
-        .duration(duration)
-        // .attr('d', function(d) {
-        //     var o = {x: source.x, y: source.y}
-        //     return diagonal(o, o)
-        // })
-        .remove();
-        nodes.forEach(function(d){
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
+    var linkExit = link.exit()
+    .remove();
+
+
     } // update end
 
     
@@ -209,38 +177,16 @@
       d.newY = newY;
       return [newX, newY];
     }
-    let treeData = {
+    let initData = {
       "id": "1",
       "properties": {
          "name": 'entity-root'
       },     
       "children": [
-        {
-          id: '1-1',
-          properties: {
-            name: '投资',  // 组名
-            type: 'relation', // 表示为组节点
-            key: 'invest'
-          },
-          "children": [
-            {
-              "id": "1-1-1",
-              properties: {
-                name: 'entity-1-1-1',  // 组名
-                type: 'group', // 表示为组节点
-                key: 'InvolvedInAppeal'
-              },
-              path: {
-                id: 'xxx',
-                 label: '涉诉路径labelxxx'
-              }
-            }
-          ]
-        },
-        {
+      {
           "id": "1-2",
           properties: {
-            name: '涉诉',  // 组名
+            name: '涉诉1-2',  // 组名
             type: 'group', // 表示为组节点
             key: 'InvolvedInAppeal'
           },
@@ -265,15 +211,37 @@
               }
             }
           ]
+        },
+        {
+          id: '1-1',
+          properties: {
+            name: '投资1-1',  // 组名
+            type: 'relation', // 表示为组节点
+            key: 'invest'
+          },
+          "children": [
+            {
+              "id": "1-1-1",
+              properties: {
+                name: 'entity-1-1-1',  // 组名
+                type: 'group', // 表示为组节点
+                key: 'InvolvedInAppeal'
+              },
+              path: {
+                id: 'xxx',
+                 label: '涉诉路径labelxxx'
+              }
+            }
+          ]
         }
+
       ]
     }
-    var root = d3.hierarchy(treeData, function (d) {
-        return d.children;
-    });
+    var root = d3.hierarchy(initData);
     root.x0 = height / 2;
     root.y0 = 0;
     var  duration = 750;
+    var i = 0;
     update(root);
   
 </script>
