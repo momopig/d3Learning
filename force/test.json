@@ -1,0 +1,120 @@
+{
+    "vertexes": [
+        {
+            "_key": "24D6B6543B884886934EFD013EB80E5E",
+            "_id": "Company/24D6B6543B884886934EFD013EB80E5E",
+            "_rev": "_VcuvHEO---",
+            "business_status": "",
+            "capital": "0.00",
+            "city": "",
+            "ctime": "2017-08-17 01:07:32",
+            "enterprise_type": "",
+            "industry": "软件和信息技术服务业",
+            "name": "海智信息技术（香港）有限公司",
+            "operation_startdate": "",
+            "province": "香港",
+            "utime": "2017-08-17 01:07:32",
+            "_type": "Company",
+            "type": "",
+            "group": 0
+        },
+        {
+            "_key": "DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_id": "Company/DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_rev": "_Vcugc5q---",
+            "business_status": "存续（在营、开业、在册）",
+            "capital": "45000000.0",
+            "city": "北京",
+            "ctime": "2017-08-17 01:07:32",
+            "enterprise_type": "有限责任公司(台港澳法人独资)",
+            "industry": "电信、广播电视和卫星传输服务",
+            "name": "海致网络技术（北京）有限公司",
+            "operation_startdate": "2013-11-27",
+            "province": "北京",
+            "utime": "2017-08-17 01:07:32",
+            "_type": "Company",
+            "type": "",
+            "group": 0
+        },
+        {
+            "_key": "011FDFC86EA5343F7F2E29347C687C88",
+            "_id": "Person/011FDFC86EA5343F7F2E29347C687C88",
+            "_rev": "_Vcv47-e--_",
+            "ctime": "2017-08-17 01:07:32",
+            "name": "史有才",
+            "utime": "2017-08-17 01:07:32",
+            "_type": "Person",
+            "type": "",
+            "group": 0
+        },
+        {
+            "_key": "40DBEFDDAEA36C691A5F4A393BCFCB8F",
+            "_id": "Person/40DBEFDDAEA36C691A5F4A393BCFCB8F",
+            "_rev": "_VcvgaSW---",
+            "ctime": "2017-08-17 01:07:32",
+            "name": "王燕军",
+            "utime": "2017-08-17 01:07:32",
+            "_type": "Person",
+            "type": "",
+            "group": 0
+        },
+        {
+            "_key": "9A0147EA1CD12FE856B0E007B8AA807F",
+            "_id": "Person/9A0147EA1CD12FE856B0E007B8AA807F",
+            "_rev": "_Vcv32Jm---",
+            "ctime": "2017-08-17 01:07:32",
+            "name": "徐岩",
+            "utime": "2017-08-17 01:07:32",
+            "_type": "Person",
+            "type": "",
+            "group": 0
+        }
+    ],
+    "edges": [
+        {
+            "_key": "C4862B954D36E0FCDE3F3EB7B207B3E9",
+            "_id": "invest/C4862B954D36E0FCDE3F3EB7B207B3E9",
+            "_from": "Company/24D6B6543B884886934EFD013EB80E5E",
+            "_to": "Company/DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_rev": "_VcxGOYq---",
+            "ctime": "2017-08-17 01:07:32",
+            "invest_amount": "45000000.0",
+            "invest_amount_unit": "元",
+            "utime": "2017-08-17 01:07:32",
+            "label": "投资（4500.00万元）,占比100.00%"
+        },
+        {
+            "_key": "04429AAB4FCF10FEDE7C9451D6D3586B",
+            "_id": "officer/04429AAB4FCF10FEDE7C9451D6D3586B",
+            "_from": "Person/40DBEFDDAEA36C691A5F4A393BCFCB8F",
+            "_to": "Company/DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_rev": "_VcxiKUe---",
+            "ctime": "2017-08-17 01:07:32",
+            "position": "执行董事",
+            "utime": "2017-08-17 01:07:32",
+            "label": "高管（执行董事,法定代表人）"
+        },
+        {
+            "_key": "2F97DBB1598669FA74826F3E9ED22EF5",
+            "_id": "officer/2F97DBB1598669FA74826F3E9ED22EF5",
+            "_from": "Person/011FDFC86EA5343F7F2E29347C687C88",
+            "_to": "Company/DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_rev": "_VcxwaFa--A",
+            "ctime": "2017-08-17 01:07:32",
+            "position": "经理",
+            "utime": "2017-08-17 01:07:32",
+            "label": "高管（经理）"
+        },
+        {
+            "_key": "F064D30DCBA8CA42D4E05F9E42EC1418",
+            "_id": "officer/F064D30DCBA8CA42D4E05F9E42EC1418",
+            "_from": "Person/9A0147EA1CD12FE856B0E007B8AA807F",
+            "_to": "Company/DCF3F5B4D4D4461412E9C8E88FFA9421",
+            "_rev": "_VcxRuSm--B",
+            "ctime": "2017-08-17 01:07:32",
+            "position": "监事",
+            "utime": "2017-08-17 01:07:32",
+            "label": "高管（监事）"
+        }
+    ]
+}

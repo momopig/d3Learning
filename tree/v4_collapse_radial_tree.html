@@ -85,7 +85,8 @@
                     .call(zoom)
 
         var g = svg.append("g").attr("transform", "translate(" + (width / 2 + 40) + "," + (height / 2 + 90) + ")");
-        svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1));
+        svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(1))
+        .on("dblclick.zoom", null);
 
         let treeData =  {
             "name": "United States",
@@ -280,21 +281,38 @@
 
             // Transition links to their new position.
             linkSvg.transition()
-            .duration(duration);
-            // .attr('d', connector);
+            .duration(duration) 
+            .attr('d', connector);
 
             // Enter any new links at the parent's previous position.
-            linkEnter = linkSvg.enter().insert('path', 'g')
+            linkEnter = linkSvg.enter().append('path', 'g')
                                 .attr("class", "link")
-                                .attr("d", function(d) {
-                                    return "M" + project(d.x, d.y)
-                                            + "C" + project(d.x, (d.y + d.parent.y) / 2)
-                                            + " " + project(d.parent.x, (d.y + d.parent.y) / 2)
-                                            + " " + project(d.parent.x, d.parent.y);
-                                });
+                                .attr("d", connector);
+
+            linkEnter.append("text")
+                .attr("font-family", "Arial, Helvetica, sans-serif")
+                .attr("fill", "Red")
+                .style("font", "normal 12px Arial")
+                // .attr("d", function (d) {
+                //     d.x = (d.parent.x + d.x) / 2
+                //     d.y = (d.parent.y + d.y) / 2
+                // })
+                .attr("transform", function(d) {
+                    return "translate(" +
+                        ((d.parent.translateX + d.translateX)/2) + "," + 
+                            ((d.parent.translateY + d.translateY)/2) + ")";
+                })
+                .attr("dy", ".35em")
+                .attr("text-anchor", "middle")
+                .text(function(d) {
+                    if(d.parent.name === 'Colorado') {
+                        let link = d.parent.link
+                        return 'label';
+                    }
+                });
 
             // Transition links to their new position.
-            linkSvg.merge(linkEnter).transition()
+            linkEnter.merge(linkSvg).transition()
                 .duration(duration)
                 .attr("d", connector);
 

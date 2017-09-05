@@ -90,6 +90,7 @@ function update(source) {
   // Compute the new tree layout.
   var nodes = treeData.descendants(),
       links = treeData.descendants().slice(1);
+      debugger
 
   // Normalize for fixed-depth.
   nodes.forEach(function(d){ d.y = d.depth * 180});
@@ -169,7 +170,9 @@ function update(source) {
 
   // Update the links...
   var link = svg.selectAll('path.link')
-      .data(links, function(d) { return d.id; });
+      .data(treeData.links(), function(d) { 
+        debugger 
+      return d.id; });
 
   // Enter any new links at the parent's previous position.
   var linkEnter = link.enter().insert('path', "g")

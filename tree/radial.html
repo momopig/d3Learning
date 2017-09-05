@@ -30,7 +30,6 @@
         height = window.innerHeight - 56;
     var zoom = d3.zoom().scaleExtent([0.2, 10]).on("zoom", function () {
         g.attr("transform", d3.event.transform);
-
       });
         d3.select(".chart").html('');
     var svg = d3.select(".chart").append('svg')
@@ -141,18 +140,18 @@
         .attr("font-family", "Arial, Helvetica, sans-serif")
         .attr("fill", "Red")
         .style("font", "normal 12px Arial")
-        // .attr("transform", function(d) {
-        //   return "translate(" +
-        //     ((d.source.newX + d.target.newX)/2) + "," + 
-        //         ((d.source.newY + d.target.newY)/2) + ")";
-        // })
+        .attr("transform", function(d) {
+          return "translate(" +
+            ((d.source.translateX + d.target.translateX)/2) + "," + 
+                ((d.source.translateY + d.target.translateY)/2) + ")";
+        })
         .attr("dy", ".35em")
         .attr("text-anchor", "middle")
         .text(function(d) {
           console.log(d);
-          // if (d.target.data.path) {
-          //   return d.target.data.path.label;
-          // }
+          if (d.target.data.path) {
+            return d.target.data.path.label;
+          }
         });
         var linkUpdate = linkEnter.merge(link);
 
@@ -166,17 +165,16 @@
 
     } // update end
 
-    
-
     function radialPoint(d) {
       let x = d.x;
       let y = d.y;
-      let newX = (y = +y) * Math.cos(x -= Math.PI / 2);
-      let newY = y * Math.sin(x)
-      d.newX = newX;
-      d.newY = newY;
-      return [newX, newY];
+      let translateX = (y = +y) * Math.cos(x -= Math.PI / 2);
+      let translateY = y * Math.sin(x)
+      d.translateX = translateX;
+      d.translateY = translateY;
+      return [translateX, translateY];
     }
+    
     let initData = {
       "id": "1",
       "properties": {
